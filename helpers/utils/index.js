@@ -1,7 +1,5 @@
 // eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies
 const Ajv = require('ajv');
-const { model } = require('mongoose');
-const debug = require('debug')('boilerplate:helpers:utils');
 const { resolve } = require('path');
 const { readFile } = require('fs');
 const { promisify } = require('util');
@@ -9,7 +7,6 @@ const ajvErrors = require('ajv-errors');
 // eslint-disable-next-line import/no-dynamic-require
 const sockets = require(resolve('config/lib/socket.io'));
 
-const roleCache = {};
 let excludeCache;
 const readFile$ = promisify(readFile);
 const ajv = new Ajv({ allErrors: true, jsonPointers: true });
@@ -37,17 +34,7 @@ exports.validate = (schema) => async function validateSchema(req, res, next) {
  * @param {Object} iam the IAM to check
  */
 exports.hasIAM = (iam) => async function hasIAM(req, res, next) {
-  const IAM = model('IAM');
   const { iams } = req;
-  let count;
-
-  // Check if the permission exist in data base.
-  try {
-    count = await IAM.countDocuments({ iam });
-  } catch (e) {
-    return next(e);
-  }
-  if (count <= 0) return res.status(404).json({ message: `Permission(IAM) ${iam} not found` });
 
   // Check if the user has the permission.
   if (iams.find((el) => el.iam === iam) === undefined) {
@@ -64,63 +51,6 @@ exports.hasIAM = (iam) => async function hasIAM(req, res, next) {
 exports.getBaseURLFromRequest = (req) => {
   const protocol = req.get('x-forwarded-proto') || req.protocol;
   return `${protocol}://${req.get('host')}`;
-};
-
-/**
- * Create a new user that has a specific list of IAMs
- * @param {Object} credentials An object containing the username and the password
- * @param {Array} iams An array of IAM keys to affect to the current user
- * @param {String} name The name of the group to generate
- */
-exports.createUser = async (
-  credentials = {
-    username: 'username',
-    password: 'jsI$Aw3$0m3',
-  },
-  iams = ['users:auth:signin'],
-  name = 'role-tests',
-  opts = {},
-) => {
-  const IAM = model('IAM');
-  const User = model('User');
-  const Role = model('Role');
-
-  const list = await IAM.find({
-    iam: {
-      $in: iams,
-    },
-  });
-
-  if (roleCache[name] && (!opts || opts.rmRole !== false)) {
-    await roleCache[name].remove();
-  }
-
-  try {
-    roleCache[name] = await new Role({
-      name,
-      iams: list,
-    }).save({ new: true });
-  } catch (e) {
-    debug(e);
-  }
-
-  const user = await new User({
-    name: {
-      first: 'Full',
-      last: 'Name',
-    },
-    email: `${credentials.username}@example.com`,
-    username: credentials.username,
-    password: credentials.password,
-    provider: 'local',
-    roles: [name],
-    validations: [{
-      type: 'email',
-      validated: true,
-    }],
-  }).save({ new: true });
-
-  return user;
 };
 
 /**
@@ -169,47 +99,6 @@ exports.isExcluded = async ({ iam, parents = [] }) => {
   return {
     found: false,
   };
-};
-
-/**
- * Add an IAM to roles
- * @param { String } iamName The iam name
- * @param { Array[String] } roles List of roles
- * @param { Number } tries Number of tries
- */
-exports.addIamToRoles = async (iamName, roles = ['guest', 'user'], tries = 100) => {
-  const Role = model('Role');
-  const Iam = model('IAM');
-
-  let iam = await Iam.findOne({ iam: iamName });
-  let counter = tries;
-
-  const interval = setInterval(async () => {
-    if (iam) {
-      const { _id: id } = iam;
-      roles.map(async (r) => {
-        try {
-          await Role.findOneAndUpdate({
-            name: r,
-          }, {
-            $addToSet: {
-              iams: id,
-            },
-          });
-        } catch (e) {
-          // Do nothing, just proceed
-        }
-      });
-    }
-
-    if (iam || counter === 0) {
-      clearInterval(interval);
-      return;
-    }
-
-    iam = await Iam.findOne({ iam: iamName });
-    counter -= 1;
-  }, 100);
 };
 
 exports.getIO = () => sockets.io;

@@ -10,7 +10,6 @@ const methodOverride = require('method-override');
 const debug = require('debug')('config:express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const { connection } = require('mongoose');
 const bodyParser = require('body-parser');
 const compress = require('compression');
 const flash = require('connect-flash');
@@ -21,7 +20,6 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const { resolve, join } = require('path');
 
-const MongoStore = require('connect-mongo')(session);
 const config = require('..');
 
 const logger = require('./logger');
@@ -51,7 +49,7 @@ module.exports.initLocalVariables = (app) => {
 /**
  * Run bootstrap files
  */
-module.exports.runBootstrap = (app, db) => {
+module.exports.runBootstrap = (app) => {
   const promises = config.files.server.bootstraps.map(async (f) => {
     // eslint-disable-next-line
     const m = require(resolve(f));
@@ -59,7 +57,7 @@ module.exports.runBootstrap = (app, db) => {
     if (typeof m === 'function') {
       try {
         debug('Bootstraping file %s', f);
-        await m(config, app, db);
+        await m(config, app);
         debug('file "%s" executed successfully', f);
       } catch (e) {
         console.error('Error bootstraping file "%s"', f, e);
@@ -143,10 +141,10 @@ module.exports.initSession = (app) => {
       secure: config.sessionCookie.secure && config.secure.ssl,
     },
     name: config.sessionKey,
-    store: new MongoStore({
-      collection: config.sessionCollection,
-      mongooseConnection: connection,
-    }),
+    /**
+     * Add your prefered store here
+     * Compatible stores: https://www.npmjs.com/package/express-session#compatible-session-stores
+     */
   }));
 
   // Add Lusca CSRF Middleware
@@ -156,10 +154,10 @@ module.exports.initSession = (app) => {
 /**
  * Invoke modules server configuration
  */
-module.exports.initModulesConfiguration = (app, db) => {
+module.exports.initModulesConfiguration = (app) => {
   config.files.server.configs.forEach((configPath) => {
     // eslint-disable-next-line
-    require(resolve(configPath))(app, db, config);
+    require(resolve(configPath))(app, config);
   });
 };
 
@@ -321,15 +319,15 @@ module.exports.initErrorRoutes = (app) => {
 /**
  * Initialize the Express application
  */
-module.exports.init = async (db) => {
+module.exports.init = async () => {
   // Initialize express app
   const app = express();
 
   // Run bootstrap files
-  await this.runBootstrap(app, db);
+  await this.runBootstrap(app);
 
   // Initialize local variables
-  this.initLocalVariables(app, db);
+  this.initLocalVariables(app);
 
   // Initialize Express middleware
   this.initMiddleware(app);
@@ -338,7 +336,7 @@ module.exports.init = async (db) => {
   this.initViewEngine(app);
 
   // Initialize Express session
-  this.initSession(app, db);
+  this.initSession(app);
 
   // Initialize modules server i18n
   this.initI18n(app);

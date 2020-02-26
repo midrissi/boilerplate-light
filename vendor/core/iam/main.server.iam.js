@@ -5,9 +5,9 @@
 const ctrls = require('../controllers/checks.server.controller');
 
 module.exports = {
-  prefix: '',
+  prefix: '/ok',
   routes: [{
-    path: '/ok',
+    path: '',
     methods: {
       get: {
         middlewares: [

@@ -128,9 +128,6 @@ function initGlobalConfigFiles(config, assets) {
     files: {
       server: {
         modules,
-        // Setting Globbed model files
-        models: getGlobbedPaths(assets.server.models),
-
         // Setting Globbed route files
         routes: getGlobbedPaths(assets.server.routes),
 

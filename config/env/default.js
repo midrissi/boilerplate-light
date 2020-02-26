@@ -4,17 +4,6 @@ module.exports = {
   log: {
     format: ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"',
   },
-  db: {
-    promise: global.Promise,
-  },
-  lib: {
-    mongoose: {
-      timestamps: {
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-      },
-    },
-  },
   i18next: {
     detector: {
       // order and from where user language should be detected

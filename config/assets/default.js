@@ -7,11 +7,6 @@ module.exports = {
     custom,
   },
   server: {
-    models: [
-      `${vendor}/users/models/**/*.js`,
-      `${vendor}/!(users)/models/**/*.js`,
-      ...custom.map(m => `${m}/*/models/**/*.js`),
-    ],
     routes: [
       `${vendor}/!(core)/routes/**/*.js`,
       ...custom.map(m => `${m}/*/routes/**/*.js`),
