@@ -1,3 +1,7 @@
+const { default: Adapter } = require('iam-mongodb');
+
+const a = new Adapter();
+
 module.exports = (config) => {
   const { env } = config.utils;
   const host = env.get('HOST', 'http-server');
@@ -23,6 +27,7 @@ module.exports = (config) => {
     host,
     port,
     secure,
+    iams: a,
     prefix: env.get('APP_PREFIX'),
     sockets: {
       public: env.get('IS_PUBLIC', 'sockets'),
