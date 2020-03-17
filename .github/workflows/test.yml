@@ -10,12 +10,6 @@ jobs:
     container:
       image:  node:latest
 
-    services:
-      mongo:
-        image: mongo:4.2.0
-        ports:
-        - 27017:27017
-
     steps:
     - uses: actions/checkout@v1
     - name: Run tests
@@ -25,4 +19,3 @@ jobs:
       env:
         CI: true
         NODE_ENV: test
-        MONGODB_URI: mongodb://mongo:${{ job.services.mongo.ports[27017] }}/app-test
