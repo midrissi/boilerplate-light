@@ -1,5 +1,5 @@
 const Ajv = require('ajv');
-const debug = require('debug')('boilerplate:helpers:utils:env:field');
+const debug = require('debug')('app:helpers:utils:env:field');
 const { red } = require('chalk');
 
 const ajv = new Ajv();

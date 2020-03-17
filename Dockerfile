@@ -1,8 +1,5 @@
-# install latest node
-# https://hub.docker.com/_/node/
-FROM node:latest
-
-ENV MONGODB_URI mongodb://mongo
+# install node
+FROM node:12.16.0
 
 # create and set app directory
 RUN mkdir -p /usr/src/app/

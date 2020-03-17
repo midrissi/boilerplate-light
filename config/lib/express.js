@@ -7,7 +7,7 @@ const { createServer: createHTTPsServer } = require('https');
 const { createServer: createHTTPServer } = require('http');
 const Backend = require('i18next-node-fs-backend');
 const methodOverride = require('method-override');
-const debug = require('debug')('config:express');
+const debug = require('debug')('app:config:express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -23,7 +23,6 @@ const { resolve, join } = require('path');
 const config = require('..');
 
 const logger = require('./logger');
-const { init: initSocketIO } = require('./socket.io');
 
 const { vendor, custom } = config.files.server.modules;
 
@@ -130,7 +129,6 @@ module.exports.initViewEngine = (app) => {
  * Configure Express session
  */
 module.exports.initSession = (app) => {
-  // Express MongoDB session storage
   app.use(session({
     saveUninitialized: true,
     resave: true,
@@ -355,9 +353,6 @@ module.exports.init = async () => {
 
   // create the server, then return the instance
   const server = this.createServer(app);
-
-  // Configure Socket.io
-  initSocketIO(server);
 
   return server;
 };

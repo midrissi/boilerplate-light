@@ -3,7 +3,7 @@ const { resolve } = require('path');
 const { promisify } = require('util');
 const { parse } = require('dotenv');
 const Ajv = require('ajv');
-const debug = require('debug')('boilerplate:helpers:utils:env');
+const debug = require('debug')('app:helpers:utils:env');
 
 const Field = require('./field');
 const envSchema = require('./field.schema');

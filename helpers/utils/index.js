@@ -4,8 +4,6 @@ const { resolve } = require('path');
 const { readFile } = require('fs');
 const { promisify } = require('util');
 const ajvErrors = require('ajv-errors');
-// eslint-disable-next-line import/no-dynamic-require
-const sockets = require(resolve('config/lib/socket.io'));
 
 let excludeCache;
 const readFile$ = promisify(readFile);
@@ -100,5 +98,3 @@ exports.isExcluded = async ({ iam, parents = [] }) => {
     found: false,
   };
 };
-
-exports.getIO = () => sockets.io;

@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'API',
+    name: 'api',
     script: 'app.js',
     instances: 1,
     autorestart: true,

@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 const chalk = require('chalk');
-const debug = require('debug')('config:lib:app');
+const debug = require('debug')('app:config:lib:app');
 
 const config = require('..');
 const express = require('./express');
@@ -23,8 +23,8 @@ module.exports.start = async function start(callback) {
     if (config.secure.ssl) {
       debug(chalk.green('HTTPs:\t\t\t\ton'));
     }
-    debug(chalk.green(`Environment:\t\t\t${process.env.NODE_ENV}`));
-    debug(chalk.green(`App version:\t\t\t${config.pkg.version}`));
+    debug(chalk.green(`Environment:\t\t${process.env.NODE_ENV}`));
+    debug(chalk.green(`App version:\t\t${config.pkg.version}`));
     debug(chalk.green(`Public address:\t\t${config.app.publicAddress}`));
     debug('--');
 
